@@ -1,23 +1,3 @@
-
-lspci -nnk | grep -A 3 VGA
-
-
-# supported ?
-dmesg | grep -e DMAR -e IOMMU
-
-# add it
-sudo nano /etc/default/grub
-GRUB_CMDLINE_LINUX_DEFAULT="quiet splash amd_iommu=on iommu=pt"
-
-sudo update-grub
-sudo reboot
-
-Recommended: Use 2 seperate inputs for your monitor => one for gpu, the other for apu
-
-
-
-Got it. You want **Windows VM to use the NVIDIA GPU**, while Linux continues using the iGPU. That means VFIO binding and passthrough steps need to target the NVIDIA GPU instead of the iGPU. Here’s the revised Markdown:
-
 ````markdown
 # Ryzen 5600G iGPU + NVIDIA GPU → Windows VM Passthrough Guide
 
@@ -31,7 +11,7 @@ This guide explains how to passthrough your NVIDIA GPU to a Windows VM while kee
 
 ```bash
 lspci -nnk | grep -A 3 VGA
-````
+```
 
 Expected output:
 
@@ -66,19 +46,17 @@ bridge-utils virt-manager ovmf
 * **virt-manager** → GUI for managing VMs
 * **OVMF** → UEFI firmware for VMs
 
-# virt manager setup
+### virt-manager setup
+
+```bash
 sudo virsh net-define /usr/share/libvirt/networks/default.xml
 sudo virsh net-autostart default
 sudo virsh net-start default
 
-(base) lunar@firetower:~$ sudo virsh net-list --all
- Name      State    Autostart   Persistent
---------------------------------------------
- default   active   yes         yes
-
 sudo usermod -aG libvirt $USER
+```
 
-Logout + back in
+Logout and back in.
 
 ---
 
@@ -177,7 +155,6 @@ Kernel driver in use: vfio-pci
 4. CPU: Host Passthrough
 5. Memory/Disk: As needed
 6. **Add PCI Host Device**:
-
    * Select NVIDIA GPU (`01:00.0`)
    * Optionally also select HDMI audio function
 7. Boot Windows → install NVIDIA GPU drivers
@@ -193,13 +170,14 @@ Kernel driver in use: vfio-pci
 
 ## 7️⃣ Install Looking Glass (Optional)
 
-Add pci of apu in virt manager
-Inside the <devices> section, add:
+Add PCI of APU in virt manager inside the `<devices>` section:
 
+```xml
 <shmem name='lg-shm'>
   <model type='ivshmem-plain'/>
   <size unit='M'>32</size>
 </shmem>
+```
 
 ### Install Dependencies
 
@@ -262,6 +240,4 @@ looking-glass-client -s /dev/shm/lg-shm
 
 * **Linux Desktop** → Ryzen 5600G iGPU
 * **Windows VM** → NVIDIA GPU via VFIO
-
-```
-
+````
