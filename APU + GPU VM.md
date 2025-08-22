@@ -12,6 +12,7 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet splash amd_iommu=on iommu=pt"
 sudo update-grub
 sudo reboot
 
+Recommended: Use 2 seperate inputs for your monitor => one for gpu, the other for apu
 
 
 
