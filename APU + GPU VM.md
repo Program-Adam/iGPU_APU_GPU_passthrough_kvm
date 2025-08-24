@@ -1,4 +1,4 @@
-````markdown
+
 # Ryzen 5600G iGPU + NVIDIA GPU → Windows VM Passthrough Guide
 
 This guide explains how to passthrough your NVIDIA GPU to a Windows VM while keeping your Ryzen 5600G iGPU for Linux desktop.
@@ -240,4 +240,4 @@ looking-glass-client -s /dev/shm/lg-shm
 
 * **Linux Desktop** → Ryzen 5600G iGPU
 * **Windows VM** → NVIDIA GPU via VFIO
-````
+
