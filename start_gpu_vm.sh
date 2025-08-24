@@ -11,15 +11,18 @@ if [ -z "$TERM" ] || [ "$TERM" = "dumb" ]; then
     fi
 fi
 
-
-
 # --- Start KVM VM ---
 VM_NAME="win11-main"
+VM_WAS_RUNNING=true
 
-# Check if the VM is already running
 if ! virsh list --name | grep -qx "$VM_NAME"; then
     echo "Starting VM $VM_NAME..."
-    sudo virsh start "$VM_NAME"
+    # Only call sudo if needed
+    if ! sudo virsh start "$VM_NAME"; then
+        echo "Failed to start VM $VM_NAME. Make sure you have permission."
+        exit 1
+    fi
+    VM_WAS_RUNNING=false
 else
     echo "VM $VM_NAME is already running."
 fi
@@ -40,13 +43,24 @@ if [[ -e "$FILE" ]]; then
 
     if [[ "$CURRENT_OWNER" != "$NEEDED_OWNER" ]] || [[ "$CURRENT_GROUP" != "$NEEDED_GROUP" ]] || [[ "$CURRENT_PERMS" != "$NEEDED_PERMS" ]]; then
         echo "Fixing permissions for $FILE..."
+        # Only use sudo if needed
         sudo chown "$USER:kvm" "$FILE"
         sudo chmod 660 "$FILE"
     fi
-else
-    echo "$FILE does not exist yet. Make sure the VM is running and Looking Glass server is active."
 fi
 
-# --- Launch Looking Glass client ---
+# --- Wait if the VM was just started ---
+if [ "$VM_WAS_RUNNING" = false ]; then
+    echo "Waiting 5 seconds for VM to initialize..."
+    sleep 5
+fi
+
+# --- Wait for Looking Glass server ---
+echo "Waiting for Looking Glass server to create $FILE..."
+while [ ! -e "$FILE" ]; do
+    sleep 5
+done
+
+echo "$FILE is now available. Launching Looking Glass client..."
 looking-glass-client -m KEY_RIGHTCTRL
 exit 0
