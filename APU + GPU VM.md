@@ -3,6 +3,19 @@
 
 This guide explains how to passthrough your NVIDIA GPU to a Windows VM while keeping your Ryzen 5600G iGPU for Linux desktop.
 
+
+Enable in BIOS/UEFI
+
+PCI Config => 
+Above 4G Decoding
+SR-IOV Support
+
+AMD PBS => Graphic Features => Primary Display Adapter: APU/iGPU
+
+AMD CBS => NBIO => IOMMU ON
+AMD CBS => NBIO => GFX =>  iGPU Config: UMA_AUTO
+Disable: Boot => CSM
+
 ---
 
 ## 1️⃣ Preliminary Checks
